@@ -28,7 +28,7 @@ export class App {
     if (!result.result.success) return;
 
     let services = JSON.parse(result.result.response).data;
-    this.updateDefinitions.methods = {};
+    this.definitions.methods = {};
 
     for (let service of services) {
       let methodName = `${service.active ? "stop" : "start"}${service.service}`;
