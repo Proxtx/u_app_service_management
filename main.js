@@ -31,7 +31,8 @@ export class App {
     this.updateDefinitions.methods = {};
 
     for (let service of services) {
-      this.definitions.methods[service.service] = {
+      let methodName = `${service.active ? "stop" : "start"}${service.service}`;
+      this.definitions.methods[methodName] = {
         arguments: [],
         name:
           service.service +
@@ -40,7 +41,7 @@ export class App {
           ". Change active status?",
       };
 
-      this[service.service] = async () => {
+      this[methodName] = async () => {
         await this.client.request("http", "request", [
           "POST",
           this.config.url,
