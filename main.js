@@ -12,6 +12,11 @@ export class App {
   async updateDefinitions() {
     if (!this.client) await this.findClient();
     if (!this.client) return;
+
+    for (let functionName in this.definitions.methods)
+      delete this[functionName];
+    this.definitions.methods = {};
+
     let result = await this.client.request("http", "request", [
       "POST",
       this.config.url,
@@ -22,13 +27,10 @@ export class App {
       }),
       "application/json",
     ]);
-    for (let functionName in this.definitions.methods)
-      delete this[functionName];
 
     if (!result.result.success) return;
 
     let services = JSON.parse(result.result.response).data;
-    this.definitions.methods = {};
 
     for (let service of services) {
       let methodName = `${service.active ? "stop" : "start"}${service.service}`;
