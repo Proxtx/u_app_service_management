@@ -17,44 +17,50 @@ export class App {
       delete this[functionName];
     this.definitions.methods = {};
 
-    let result = await this.client.request("http", "request", [
-      "POST",
-      this.config.url,
-      JSON.stringify({
-        arguments: [this.config.pwd],
-        export: "serviceStatus",
-        module: "public/service.js",
-      }),
-      "application/json",
-    ]);
+    try {
+      let result = await this.client.request("http", "request", [
+        "POST",
+        this.config.url,
+        JSON.stringify({
+          arguments: [this.config.pwd],
+          export: "serviceStatus",
+          module: "public/service.js",
+        }),
+        "application/json",
+      ]);
 
-    if (!result.result.success) return;
+      if (!result.result.success) return;
 
-    let services = JSON.parse(result.result.response).data;
+      let services = JSON.parse(result.result.response).data;
 
-    for (let service of services) {
-      let methodName = `${service.active ? "stop" : "start"}${service.service}`;
-      this.definitions.methods[methodName] = {
-        arguments: [],
-        name:
-          service.service +
-          " is " +
-          (service.active ? "active" : "not active") +
-          ". Change active status?",
-      };
+      for (let service of services) {
+        let methodName = `${service.active ? "stop" : "start"}${
+          service.service
+        }`;
+        this.definitions.methods[methodName] = {
+          arguments: [],
+          name:
+            service.service +
+            " is " +
+            (service.active ? "active" : "not active") +
+            ". Change active status?",
+        };
 
-      this[methodName] = async () => {
-        await this.client.request("http", "request", [
-          "POST",
-          this.config.url,
-          JSON.stringify({
-            arguments: [this.config.pwd, service.service],
-            export: "changeServiceStatus",
-            module: "public/service.js",
-          }),
-          "application/json",
-        ]);
-      };
+        this[methodName] = async () => {
+          await this.client.request("http", "request", [
+            "POST",
+            this.config.url,
+            JSON.stringify({
+              arguments: [this.config.pwd, service.service],
+              export: "changeServiceStatus",
+              module: "public/service.js",
+            }),
+            "application/json",
+          ]);
+        };
+      }
+    } catch {
+      console.log("SM Failed");
     }
   }
 
