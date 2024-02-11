@@ -60,6 +60,7 @@ export class App {
         };
       }
     } catch {
+      delete this.client;
       console.log("SM Failed");
     }
   }
